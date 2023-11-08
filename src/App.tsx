@@ -1,6 +1,6 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 const App: React.FC = () => {
   return (
@@ -16,11 +16,11 @@ const App: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn React Today!
         </a>
       </header>
     </div>
   );
-}
+};
 
 export default App;
