@@ -41,3 +41,44 @@ it("has a question prompt", () => {
   //assert that question is in the document
   expect(question).toBeInTheDocument();
 });
+
+it("has a button to skip the card", () => {
+  //use Object Destructuring to get getByText from the result of render
+  const { getByText } = render(<Answering />);
+
+  //find Skip button by searching for string 'Skip'
+  const skip = getByText("Skip");
+
+  //assert that the Skip button is in the document
+  expect(skip).toBeInTheDocument();
+});
+
+//a textarea to write the answer in
+it("has a textArea to type the answer in", () => {
+  const { getByTestId } = render(<Answering />);
+
+  const textArea = getByTestId("textarea");
+
+  expect(textArea).toBeInTheDocument();
+});
+
+//a submit button is in the document
+it("has a button to submit the answer", () => {
+  //use Object Destructuring to get getByText from the result of render
+  const { getByText } = render(<Answering />);
+
+  //find Submit Button by searching for string 'Submit'
+  const submit = getByText("Submit");
+
+  //assert that the Submit button is in the document
+  expect(submit).toBeInTheDocument();
+});
+
+//and the snapshot
+it("Matches Snapshot", () => {
+  //get the asFragment method so we can look at the component as a DocumentFragment
+  const { asFragment } = render(<Answering />);
+
+  //expect the result of asFragment() to match the snapshot of this component
+  expect(asFragment()).toMatchSnapshot();
+});

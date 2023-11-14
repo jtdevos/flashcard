@@ -10,7 +10,11 @@ const Answering = () => {
       data-testid="container"
       style={{ position: "absolute", left: 200 }}
     >
-      <Header data-testid="question" />;
+      <Header data-testid="question" />;<Button>Skip</Button>
+      <Form>
+        <TextArea data-testid="textarea" />
+      </Form>
+      <Button>Submit</Button>
     </Container>
   );
 };
