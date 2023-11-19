@@ -1,9 +1,16 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import App from './App';
+import React from "react";
+import { render, cleanup, getByTestId } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+afterEach(cleanup);
+
+//shows the Answering scene
+it("shows the Answering component", () => {
   const { getByText } = render(<App />);
-  const linkElement = getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  const skip = getByText(/skip/i);
+
+  //if we find a skip button, we know answering is showing up
+  expect(skip).toBeInTheDocument();
 });
+//snapshot
