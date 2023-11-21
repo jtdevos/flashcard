@@ -3,7 +3,7 @@ import { render, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { reducer } from "./index";
 import { CardContext, CardProvider, initialState } from "./index";
-import { CardState } from "../../types";
+import { CardAction, CardActionTypes, CardState } from "../../types";
 
 const CardConsumer = () => {
   //get cards and the index of the current card
@@ -67,4 +67,70 @@ describe("CardConsumer using CardContext", () => {
   //answer is the same as initialState.cards[0].answer
 });
 
-// todo: CardContext Test 5: card.question
+//Question is the same as initialState.cards[0].question
+it("question is the same as current card", () => {
+  //get cards, current from initialState
+  const { cards, current } = initialState;
+
+  //get the question from the current card
+  const currentQuestion = cards[current].question;
+
+  const { getByTestId } = renderProvider();
+  //find the question div
+  const question = getByTestId(/question/i);
+
+  //question div should match the current question
+  expect(question).toHaveTextContent(currentQuestion);
+});
+
+//subject is the same as initialState.cards[0].subject
+it("subject is the same current card", () => {
+  //get cards, current from initialState
+  const { cards, current } = initialState;
+
+  //get the question from the current card
+  const currentSubject = cards[current].subject;
+
+  const { getByTestId } = renderProvider();
+  //find the subject div
+  const subject = getByTestId(/subject/i);
+
+  //subject div should match the current subject
+  expect(subject).toHaveTextContent(currentSubject);
+});
+
+//subject is the same as initialState.cards[0].subject
+it("answer is the same as the current card", () => {
+  //get cards, current from initialState
+  const { cards, current } = initialState;
+
+  //get the question from the current card
+  const currentAnswer = cards[current].answer;
+
+  const { getByTestId } = renderProvider();
+  //find the answer div
+  const answer = getByTestId(/answer/i);
+
+  //answer div should match the current answer
+  expect(answer.textContent).toEqual(currentAnswer);
+});
+
+describe("CardContext reducer", () => {
+  it("next increments current", () => {
+    //declare CardAction with type of 'next'
+    const nextAction: CardAction = { type: CardActionTypes.next };
+
+    //create a new CardState with current ===0
+    const zeroState = {
+      ...initialState,
+      current: 0,
+    };
+
+    //pass initialState and nextAction to the reducer
+    expect(reducer(zeroState, nextAction).current).toEqual(1);
+  });
+
+  it("resets current to zero when selecting next", () => {
+    //todo: CardContext Test 9: Reducer Handles 'next' Action When Current !== 0
+  });
+});
