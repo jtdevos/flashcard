@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { reducer } from "./index";
 import { CardContext, CardProvider, initialState } from "./index";
@@ -131,6 +131,18 @@ describe("CardContext reducer", () => {
   });
 
   it("resets current to zero when selecting next", () => {
-    //todo: CardContext Test 9: Reducer Handles 'next' Action When Current !== 0
+    const nextAction: CardAction = { type: CardActionTypes.next };
+
+    //get last valid index of cards
+    const lastIndex = initialState.cards.length - 1;
+
+    //create a Cardstate object where current is the last valid index of cards
+    const lastState = {
+      ...initialState,
+      current: lastIndex,
+    };
+
+    //pass the lastState and nextAction to reducer
+    expect(reducer(lastState, nextAction).current).toEqual(0);
   });
 });
