@@ -34,8 +34,11 @@ export const reducer = (state: CardState, action: any) => {
   //otherwise it will run the default case
   switch (action.type) {
     case CardActionTypes.next:
-      state.current = (state.current + 1) % cards.length;
-      return state;
+      const next = (state.current + 1) % cards.length;
+      return {
+        ...state,
+        current: next,
+      };
     //default case returns the previous state without changing it
     default:
       return state;

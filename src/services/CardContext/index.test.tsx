@@ -4,11 +4,11 @@ import "@testing-library/jest-dom/extend-expect";
 import { reducer } from "./index";
 import { CardContext, CardProvider, initialState } from "./index";
 import { CardAction, CardActionTypes, CardState } from "../../types";
+import { Button } from "semantic-ui-react";
 
 const CardConsumer = () => {
   //get cards and the index of the current card
-  const { cards, current } = useContext(CardContext);
-
+  const { cards, current, dispatch } = useContext(CardContext);
   //get the current card
   const card = cards[current];
 
@@ -22,6 +22,9 @@ const CardConsumer = () => {
       <div data-testid="question">{question}</div>
       <div data-testid="answer">{answer}</div>
       <div data-testid="subject">{subject}</div>
+      <Button onClick={() => dispatch({ type: CardActionTypes.next })}>
+        Next
+      </Button>
     </div>
   );
 };
@@ -141,8 +144,32 @@ describe("CardContext reducer", () => {
       ...initialState,
       current: lastIndex,
     };
-
     //pass the lastState and nextAction to reducer
     expect(reducer(lastState, nextAction).current).toEqual(0);
   });
+
+  it("dispatching next action from component increments value of current", () => {
+    //create a new CardState with current ==0
+    const zeroState = {
+      ...initialState,
+      current: 0,
+    };
+
+    const { getByTestId, getByText } = renderProvider(zeroState);
+
+    //get currentDiv testId
+    const currentDiv = getByTestId(/current/i);
+    //textContent should be 0
+    expect(currentDiv).toHaveTextContent("0");
+
+    //get nextButton by text- users find buttons with text
+    const nextButton = getByText(/next/i);
+    //click next button
+    fireEvent.click(nextButton);
+
+    expect(currentDiv).toHaveTextContent("1");
+  });
 });
+
+//todo: Answering Test 1:
+// https://dev.to/jacobwicks/cardcontext-mhe#answering-test-1-answering-shows-the-question-from-the-current-card
