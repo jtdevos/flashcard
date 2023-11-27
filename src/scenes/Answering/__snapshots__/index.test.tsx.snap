@@ -10,7 +10,9 @@ exports[`Matches Snapshot 1`] = `
     <div
       class="ui header"
       data-testid="question"
-    />
+    >
+      What is a linked list?
+    </div>
     <button
       class="ui button"
     >
