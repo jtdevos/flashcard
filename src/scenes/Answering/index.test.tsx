@@ -121,3 +121,46 @@ it("clicks the skip button and the next question appears", () => {
 
   expect(question).toHaveTextContent(initialState.cards[1].question);
 });
+
+describe("submit button controls display of the answer", () => {
+  //the answer to the current question
+  const initialAnswer = initialState.cards[initialState.current].answer;
+
+  //remove lineBreaks from initialAnswer for comparison to textContent of elements
+  const withoutLineBreaks = initialAnswer.replace(/\s{2,}/g, " ");
+
+  const compareToInitialAnswer = (
+    content: string,
+    { textContent }: HTMLElement
+  ) =>
+    !!textContent &&
+    textContent.replace(/\s{2,}/g, " ").slice(6, textContent.length) ===
+      withoutLineBreaks;
+
+  //answer does not show up
+  it("the answer does not show up before the submit button is clicked", () => {
+    const { queryByText, debug } = renderAnswering();
+
+    //use the custom function to search for the initial answer
+    const answer = queryByText(compareToInitialAnswer);
+    // debug();
+    expect(answer).toBeNull();
+  });
+
+  //clicking the submit button makes the answer show up
+  it("clicks the submit button and shows the answer", () => {
+    const { getByText } = renderAnswering();
+
+    //find the submit button
+    const submit = getByText(/submit/i);
+    //simulating a click on the submit button
+    fireEvent.click(submit);
+
+    //use a custom function to find the answer
+    //the function returns true if content is equal to the initial answer withoutLineBreaks
+    const answer = getByText(compareToInitialAnswer);
+
+    //assertion
+    expect(answer).toBeInTheDocument();
+  });
+});
