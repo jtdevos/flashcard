@@ -1,3 +1,7 @@
+import { CardState } from '../../types';
+import { CardProvider, initialState } from '../../services/CardContext';
+
+
 //React lets us create and display components to the user
 //We need to import it so that we can look at the components to test them
 import React from "react";
@@ -13,6 +17,17 @@ import "@testing-library/jest-dom/extend-expect";
 //This is the Answering component that we are going to write
 //we have to import it so that we can look at it to test it
 import Answering from "./index";
+
+
+afterEach(cleanup);
+
+const renderAnswering = (testState?: CardState) => {
+  return render(
+    <CardProvider testState={testState? testState : initialState}>
+      <Answering />
+    </CardProvider>
+  );
+};
 
 //we need
 //a container,
@@ -31,16 +46,23 @@ it("has a Container", () => {
 });
 
 //test to see if the question prompt is in the document
-it("has a question prompt", () => {
-  //Use Object Destructuring to get getByTestId from the result of render
-  const { getByTestId } = render(<Answering />);
+it('has the question prompt from the current card', () => {
+    const { cards, current } = initialState;
+    //get the question from current card 
+    const currentQuestion = cards[current].question;
 
-  //find question by searching for testId 'question'
-  const question = getByTestId("question");
+    //get getByTestId from the helper function
+    const { getByTestId } = renderAnswering();
 
-  //assert that question is in the document
-  expect(question).toBeInTheDocument();
+    const question = getByTestId('question');
+
+    //question content should be the question from the current card
+    expect(question).toHaveTextContent(currentQuestion);
 });
+
+// todo: https://dev.to/jacobwicks/cardcontext-mhe#pass-answering-test-1-answering-shows-the-question-from-the-current-card
+
+
 
 it("has a button to skip the card", () => {
   //use Object Destructuring to get getByText from the result of render
