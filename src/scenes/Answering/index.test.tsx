@@ -58,7 +58,6 @@ it("has the question prompt from the current card", () => {
   expect(question).toHaveTextContent(currentQuestion);
 });
 
-// todo: https://dev.to/jacobwicks/cardcontext-mhe#pass-answering-test-1-answering-shows-the-question-from-the-current-card
 
 it("has a button to skip the card", () => {
   //use Object Destructuring to get getByText from the result of render

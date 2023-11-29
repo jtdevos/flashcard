@@ -170,6 +170,3 @@ describe("CardContext reducer", () => {
     expect(currentDiv).toHaveTextContent("1");
   });
 });
-
-//todo: Answering Test 1:
-// https://dev.to/jacobwicks/cardcontext-mhe#answering-test-1-answering-shows-the-question-from-the-current-card

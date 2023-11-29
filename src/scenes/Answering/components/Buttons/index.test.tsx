@@ -1,47 +1,125 @@
-import React, { useState, useContext } from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import Buttons from './index';
-import { CardContext, CardProvider, initialState } from '../../../../services/CardContext';
-import { CardState } from '../../../../types';
+import React, { useState, useContext } from "react";
+import { render, cleanup, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom/extend-expect";
+import Buttons from "./index";
+import {
+  CardContext,
+  CardProvider,
+  initialState,
+} from "../../../../services/CardContext";
+import { CardState } from "../../../../types";
 
 afterEach(cleanup);
 
 //displays the current index from cardContext
 //allows us to check if buttons can change current
 const Current = () => {
-    const { current } = useContext(CardContext);
-    return <div data-testid='current'>{current}</div>
-}
+  const { current } = useContext(CardContext);
+  return <div data-testid="current">{current}</div>;
+};
 
 //a container component to hold Buttons
 //submit() changes answered from false to true
-const ButtonHolder = (
-    {answeredStartsAs,
-    testState}: {
-        answeredStartsAs?: boolean,
-        testState?: CardState
-    }) => {
-        const [answered, setAnswered] = useState(answeredStartsAs !== undefined ? answeredStartsAs : false);
-        return (
-            <CardProvider testState={testState}>
-                <Buttons answered={answered} submit={() => setAnswered(true)}/>
-                <Current/>
-            </CardProvider>
-)};
+const ButtonHolder = ({
+  answeredStartsAs,
+  testState,
+}: {
+  answeredStartsAs?: boolean;
+  testState?: CardState;
+}) => {
+  const [answered, setAnswered] = useState(
+    answeredStartsAs !== undefined ? answeredStartsAs : false
+  );
+  return (
+    <CardProvider testState={testState}>
+      <Buttons answered={answered} submit={() => setAnswered(true)} />
+      <Current />
+    </CardProvider>
+  );
+};
 
 //renders without crashing
-//renders without crashing
-it('renders without crashing', () => {
-    render(<ButtonHolder/>);
+it("renders without crashing", () => {
+  render(<ButtonHolder />);
 });
 
 //Buttons take a prop answered: boolean
 //if !answered, then it should show a submit button
-//if answered, then it should show right and wrong buttons
-//clicking right advances to the next card
-//clicking wrong advances to next card
-//clicking submit invokes submit, shows right and wrong buttons
+it("has a submit Button", () => {
+  const { getByText } = render(<Buttons answered={false} submit={jest.fn()} />);
+  const submit = getByText(/submit/i);
+  expect(submit).toBeInTheDocument();
+});
 
-//todo: Test 2: When answered is false, Buttons Shows a Submit Button
-// https://dev.to/jacobwicks/right-and-wrong-answer-buttons-1b45#test-2-when-raw-answered-endraw-is-false-raw-buttons-endraw-shows-a-raw-submit-endraw-button
+describe("when answered is true", () => {
+  //if answered, then it should show right and wrong buttons
+  it("shows right and wrong buttons", () => {
+    const { getByText } = render(<ButtonHolder answeredStartsAs={true} />);
+
+    const right = getByText(/right/i);
+    expect(right).toBeInTheDocument();
+
+    const wrong = getByText(/right/i);
+    expect(wrong).toBeInTheDocument();
+  });
+
+  const zeroState = {
+    ...initialState,
+    current: 0,
+  };
+
+  //clicking right advances to the next card
+  it("When user clicks right button, the app changes to the next card", () => {
+    //pass testState with current === 0
+    const { getByTestId, getByText } = render(
+      <ButtonHolder answeredStartsAs={true} testState={zeroState} />
+    );
+
+    //get the helper component Current
+    const current = getByTestId("current");
+
+    //current should show text 0
+    expect(current).toHaveTextContent("0");
+
+    //get= the right button
+    const right = getByText(/right/i);
+    //click the right button
+    fireEvent.click(right);
+
+    expect(current).toHaveTextContent("1");
+  });
+
+  //clicking wrong advances to next card
+  it("When user clicks wrong button, the app changes to the next card", () => {
+    //pass testState with current === 0
+    const { getByTestId, getByText } = render(
+      <ButtonHolder answeredStartsAs={true} testState={zeroState} />
+    );
+
+    //get the helper component Current
+    const current = getByTestId("current");
+    //current should show text 0;
+    expect(current).toHaveTextContent("0");
+
+    //get the wrong button
+    const wrong = getByText(/wrong/i);
+    fireEvent.click(wrong);
+    expect(current).toHaveTextContent("1");
+  });
+});
+
+//clicking submit invokes submit, shows right and wrong buttons
+it("clicking submit shows right and wrong buttons", () => {
+  const { getByText, queryByText } = render(<ButtonHolder />);
+
+  const submit = getByText(/submit/i);
+  expect(submit).toBeInTheDocument();
+
+  expect(queryByText(/right/i)).toBeNull();
+  expect(queryByText(/wrong/i)).toBeNull();
+
+  fireEvent.click(submit);
+  expect(queryByText(/submit/i)).toBeNull();
+  expect(getByText(/right/i)).toBeInTheDocument();
+  expect(getByText(/wrong/i)).toBeInTheDocument();
+});
