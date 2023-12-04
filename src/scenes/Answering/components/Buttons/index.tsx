@@ -29,7 +29,7 @@ const Buttons = ({
       </Button.Group>
     );
   } else {
-    return <Button content="Submit" />;
+    return <Button content="Submit" onClick={() => submit()} />;
   }
 };
 

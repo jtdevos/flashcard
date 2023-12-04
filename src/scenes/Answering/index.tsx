@@ -5,6 +5,8 @@ import { CardContext } from "../../services/CardContext";
 //The types of action that CardContext can handle
 import { CardActionTypes } from "../../types";
 
+import Buttons from './components/Buttons';
+
 //import all the components from Semantic UI React
 import { Button, Container, Form, Header, TextArea } from "semantic-ui-react";
 
@@ -31,7 +33,7 @@ const Answering = () => {
       <Form>
         <TextArea data-testid="textarea" />
       </Form>
-      <Button onClick={() => setShowAnswer(true)}>Submit</Button>
+      <Buttons answered={showAnswer} submit={() => setShowAnswer(true)}/>
       <Answer visible={showAnswer} />
     </Container>
   );
