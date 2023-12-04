@@ -8,7 +8,12 @@ import React from "react";
 //testing library gives us methods to test components
 //we use render to look at React components
 //we use cleanup to clear out memory after tests
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 
 //extend-expect gives us methods that let us say what we think a component will look like when we test it
 import "@testing-library/jest-dom/extend-expect";
@@ -97,109 +102,174 @@ it("clicks the skip button and the next question appears", () => {
     ...initialState,
     current: 0,
   };
-  
+
   //current starts out at 0
   const { getByTestId, getByText } = renderAnswering(zeroState);
-  
+
   const question = getByTestId("question");
   //current starts out at 0, so question should be cards[0]
   expect(question).toHaveTextContent(initialState.cards[0].question);
-  
+
   const skip = getByText(/skip/i);
   fireEvent.click(skip);
-  
+
   expect(question).toHaveTextContent(initialState.cards[1].question);
 });
 
 describe("submit button controls display of the answer", () => {
   //the answer to the current question
   const initialAnswer = initialState.cards[initialState.current].answer;
-  
+
   //remove lineBreaks from initialAnswer for comparison to textContent of elements
   const withoutLineBreaks = initialAnswer.replace(/\s{2,}/g, " ");
-  
+
   const compareToInitialAnswer = (
     content: string,
     { textContent }: HTMLElement
-    ) =>
+  ) =>
     !!textContent &&
     textContent.replace(/\s{2,}/g, " ").slice(6, textContent.length) ===
-    withoutLineBreaks;
-    
-    //answer does not show up
-    it("the answer does not show up before the submit button is clicked", () => {
-      const { queryByText, debug } = renderAnswering();
-      
-      //use the custom function to search for the initial answer
-      const answer = queryByText(compareToInitialAnswer);
-      // debug();
-      expect(answer).toBeNull();
-    });
-    
-    //clicking the submit button makes the answer show up
-    it("clicks the submit button and shows the answer", () => {
-      const { getByText } = renderAnswering();
-      
-      //find the submit button
-      const submit = getByText(/submit/i);
-      //simulating a click on the submit button
-      fireEvent.click(submit);
-      
-      //use a custom function to find the answer
-      //the function returns true if content is equal to the initial answer withoutLineBreaks
-      const answer = getByText(compareToInitialAnswer);
-      
-      //assertion
-      expect(answer).toBeInTheDocument();
-    });
+      withoutLineBreaks;
+
+  //answer does not show up
+  it("the answer does not show up before the submit button is clicked", () => {
+    const { queryByText, debug } = renderAnswering();
+
+    //use the custom function to search for the initial answer
+    const answer = queryByText(compareToInitialAnswer);
+    // debug();
+    expect(answer).toBeNull();
   });
-  
-  describe('clicking the Submit Button makes the Right and Wrong Buttons show up', () => {
-    //the Right button does not show up before Submit is clicked
-    it('the Right button does not show up before Submit is clicked', () => {
-      const { queryByText } = renderAnswering();
-      const right = queryByText(/right/i);
-      expect(right).toBeNull();
-    });
 
-    //the Wrong button does not show up before Submit is clicked
-    it('the Wrong button does not show up before Submit is clicked', () => {
-      const {queryByText} = renderAnswering();
-      const wrong = queryByText(/wrong/i);
-      expect(wrong).toBeNull();
-    });
+  //clicking the submit button makes the answer show up
+  it("clicks the submit button and shows the answer", () => {
+    const { getByText } = renderAnswering();
 
-    //Clicking Submit makes the Right Button show up
-    it('clicks the submit button and shows the Right button', () => {
-      const { getByText } = renderAnswering();
+    //find the submit button
+    const submit = getByText(/submit/i);
+    //simulating a click on the submit button
+    fireEvent.click(submit);
 
-      //find the submit button 
-      const submit = getByText(/submit/i);
-      fireEvent.click(submit);
+    //use a custom function to find the answer
+    //the function returns true if content is equal to the initial answer withoutLineBreaks
+    const answer = getByText(compareToInitialAnswer);
 
-      const right = getByText(/right/i);
-      expect(right).toBeInTheDocument();
-    });   
+    //assertion
+    expect(answer).toBeInTheDocument();
+  });
 
-    //Clicking Submit makes the Wrong Button show up
-    it('clicks the submit button and shows the Wrong button', () => {
-      const { getByText } = renderAnswering();
-    
-      //find the submit button 
-      const submit = getByText(/submit/i);
-      //simulating a click on the submit button
-      fireEvent.click(submit);
+  //answer goes away
+  it("answer disappears when card changes", async () => {
+    const { debug, getByText, queryByText } = renderAnswering();
 
-      const wrong = getByText(/wrong/i);
-      expect(wrong).toBeInTheDocument();
-    });
+    //find the submit button
+    const submit = getByText(/submit/i);
+    //simulating a click on the submit button
+    fireEvent.click(submit);
+
+    //use a custom function to find the answer
+    const answer = getByText(compareToInitialAnswer);
+
+    //assertion
+    expect(answer).toBeInTheDocument();
+
+    //clicking skip changes the current index
+    const skip = getByText(/skip/i);
+    fireEvent.click(skip);
+
+    //the answer to the second question
+    const secondAnswer = initialState.cards[initialState.current + 1].answer;
+
+    //remove lineBreaks from initialAnswer for comparison to textContent of elements
+    const withoutLineBreaks = secondAnswer.replace(/\s{2,}/g, " ");
+
+    //a function that compares a string to the second answer
+    const compareToSecondAnswer = (
+      content: string,
+      { textContent }: HTMLElement
+    ) =>
+      !!textContent &&
+      textContent.replace(/\s{2,}/g, " ").slice(6, textContent.length) ===
+        withoutLineBreaks;
+
+    //look for the first answer
+    const gone = queryByText(compareToInitialAnswer);
+    //first answer shouldn't show up
+    expect(gone).toBeNull();
+
+    //second answer should go away
+    await waitForElementToBeRemoved(() => queryByText(compareToSecondAnswer));
+  });
 });
 
-  //and the snapshot
-  it("Matches Snapshot", () => {
-    //get the asFragment method so we can look at the component as a DocumentFragment
-    const { asFragment } = render(<Answering />);
-  
-    //expect the result of asFragment() to match the snapshot of this component
-    expect(asFragment()).toMatchSnapshot();
+describe("clicking the Submit Button makes the Right and Wrong Buttons show up", () => {
+  //the Right button does not show up before Submit is clicked
+  it("the Right button does not show up before Submit is clicked", () => {
+    const { queryByText } = renderAnswering();
+    const right = queryByText(/right/i);
+    expect(right).toBeNull();
   });
+
+  //the Wrong button does not show up before Submit is clicked
+  it("the Wrong button does not show up before Submit is clicked", () => {
+    const { queryByText } = renderAnswering();
+    const wrong = queryByText(/wrong/i);
+    expect(wrong).toBeNull();
+  });
+
+  //Clicking Submit makes the Right Button show up
+  it("clicks the submit button and shows the Right button", () => {
+    const { getByText } = renderAnswering();
+
+    //find the submit button
+    const submit = getByText(/submit/i);
+    fireEvent.click(submit);
+
+    const right = getByText(/right/i);
+    expect(right).toBeInTheDocument();
+  });
+
+  //Clicking Submit makes the Wrong Button show up
+  it("clicks the submit button and shows the Wrong button", () => {
+    const { getByText } = renderAnswering();
+
+    //find the submit button
+    const submit = getByText(/submit/i);
+    //simulating a click on the submit button
+    fireEvent.click(submit);
+
+    const wrong = getByText(/wrong/i);
+    expect(wrong).toBeInTheDocument();
+  });
+});
+
+it("clears the answer when card changes", () => {
+  const { getByText, getByTestId } = renderAnswering();
+  const textarea = getByTestId("textarea");
+
+  const placeholder = "placeholder text";
+  //put the placeholder text into the textarea
+  fireEvent.change(textarea, { target: { value: placeholder } });
+
+  //make sure the placeholder text is there
+  expect(textarea).toHaveTextContent(placeholder);
+
+  //get the skip button
+  const skip = getByText(/skip/i);
+  //click skip, this dispactches a 'next' action to cardcontext
+  //which should change the value of current
+  //and trigger useEffect hook to clear the textarea
+  fireEvent.click(skip);
+
+  //textarea should be empty
+  expect(textarea).toHaveTextContent("");
+});
+
+//and the snapshot
+it("Matches Snapshot", () => {
+  //get the asFragment method so we can look at the component as a DocumentFragment
+  const { asFragment } = render(<Answering />);
+
+  //expect the result of asFragment() to match the snapshot of this component
+  expect(asFragment()).toMatchSnapshot();
+});
