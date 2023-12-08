@@ -33,3 +33,45 @@ export enum CardActionTypes {
 export type CardAction =
   //moves to the next card
   { type: CardActionTypes.next };
+
+//The stats for a single question
+export interface Stats {
+  //number of times user has gotten it right
+  right: number;
+
+  //number of times user has gotten it wrong
+  wrong: number;
+
+  //number of times user has seen the question but skipped it instead of answering it
+  skip: number;
+}
+// an interface with string index
+// each string is expected to return an object that fits the Stats
+// the string that we will use for a signature is the question from a Card object
+export interface StatsType {
+  [key: string]: Stats;
+}
+
+//The StatsDispatch function
+interface StatsDispatch {
+  dispatch: (action: StatsAction) => void;
+}
+
+//a union type. The stats state will have a Stats object for any given key
+//except dispatch will return the StatsDispatch function
+export type StatsState = StatsType & StatsDispatch;
+
+//an enum listing the three types of StatsAction
+//A user can get a question right, wrong, or skip it
+export enum StatsActionType {
+  right = "right",
+  skip = "skip",
+  wrong = "wrong",
+}
+
+//Stats Action
+//takes the question from a card
+export type StatsAction = {
+  type: StatsActionType;
+  question: string;
+};
