@@ -6,6 +6,27 @@ export const reducer = (state: StatsState, action: StatsAction) => {
   //if there isa case that matches the type it will run that code
   //otherwise it will run the default case
   switch (action.type) {
+    case "right": {
+      const { question } = action;
+
+      //if the question is already in state, use those for the stats
+      //otherwise, use blankStats object
+      const prevStats = state[question] ? state[question] : blankStats;
+
+      //create newStats from prevstats
+      const newStats = {
+        ...prevStats,
+        right: prevStats.right + 1,
+      };
+
+      //assign newStats to question
+      const newState = {
+        ...state,
+        [question]: newStats,
+      };
+
+      return newState;
+    }
     //default case returns the previous state with no modifications
     default:
       return state;
@@ -24,5 +45,3 @@ export const blankStats: Stats = {
 export const initialState = {
   dispatch: (action: StatsAction) => undefined,
 } as StatsState;
-
-//todo: https://dev.to/jacobwicks/statscontext-246c#test-2-raw-reducer-endraw-adds-a-new-raw-stats-endraw-object-when-it-receives-a-new-question
