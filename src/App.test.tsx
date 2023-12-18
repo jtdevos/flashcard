@@ -13,4 +13,9 @@ it("shows the Answering component", () => {
   //if we find a skip button, we know answering is showing up
   expect(skip).toBeInTheDocument();
 });
+
 //snapshot
+it("Matches Snapshot", () => {
+  const { asFragment } = render(<App />);
+  expect(asFragment()).toMatchSnapshot();
+});

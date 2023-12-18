@@ -94,4 +94,28 @@ describe("with Stats", () => {
     expect(seen).toBeInTheDocument();
     expect(seen).toHaveTextContent("You have seen this question 10 times.");
   });
+
+  const questionZero = cardState.cards[0].question;
+  const expectedStats = statsState[questionZero];
+
+  //use test each to test for each type of stat
+  test.each`
+    stat       | regEx                  | expected
+    ${"right"} | ${/You got it right/i} | ${expectedStats.right.toString()}
+    ${"wrong"} | ${/Wrong/i}            | ${expectedStats.wrong.toString()}
+    ${"skip"}  | ${/You skipped it/i}   | ${expectedStats.skip.toString()}
+  `(
+    "Popup returns correct value of $stat, $expected",
+    ({ stat, regEx, expected }) => {
+      const { getByTestId, getByText } = renderStats();
+
+      //open the popup
+      const icon = getByTestId("icon");
+      fireEvent.click(icon);
+
+      //make find the element regular expression
+      const result = getByText(regEx);
+      expect(result).toHaveTextContent(expected);
+    }
+  );
 });

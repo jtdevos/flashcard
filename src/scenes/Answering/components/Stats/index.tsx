@@ -43,6 +43,9 @@ const Stats = () => {
           <div>
             You have seen this question {total} time{total !== 1 && "s"}.
           </div>
+          <div>You got it right {stats.right}</div>
+          <div>Wrong {stats.wrong}</div>
+          <div>You skipped it {stats.skip}</div>
         </div>
       }
       trigger={icon}
