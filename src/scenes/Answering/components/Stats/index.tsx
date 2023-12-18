@@ -19,12 +19,35 @@ const Stats = () => {
   //declare icon as variable
   const icon = <Icon data-testid="icon" name="question circle" />;
 
-  if (!stats)
+  if (!stats) {
     return (
       <Popup content="You haven't seen this question before" trigger={icon} />
     );
+  }
 
-  return <Popup content="There are stats" trigger={icon} />;
+  //stats is truthy, so we can calculate the total
+  const total = Object.keys(stats).reduce((acc, cur) => {
+    //cast cur to key from the typeof stats
+    //which is really the keys of Stats as defined in our src/types.ts file
+    const key = cur as keyof typeof stats;
+    //stats[key] is a number
+    acc = acc + stats[key];
+    return acc;
+  }, 0);
+
+  return (
+    <Popup
+      data-testid="popup"
+      content={
+        <div>
+          <div>
+            You have seen this question {total} time{total !== 1 && "s"}.
+          </div>
+        </div>
+      }
+      trigger={icon}
+    />
+  );
 };
 
 export default Stats;
