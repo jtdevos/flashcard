@@ -243,6 +243,12 @@ describe("clicking the Submit Button makes the Right and Wrong Buttons show up",
   });
 });
 
+it("has the stats icon", () => {
+  const { getByTestId } = renderAnswering();
+  const stats = getByTestId("icon");
+  expect(stats).toBeInTheDocument();
+});
+
 it("clears the answer when card changes", () => {
   const { getByText, getByTestId } = renderAnswering();
   const textarea = getByTestId("textarea");

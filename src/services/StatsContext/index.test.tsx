@@ -8,7 +8,7 @@ import {
   StatsProvider,
   StatsContext,
 } from "./index";
-import { StatsActionType, Stats } from "../../types";
+import { StatsActionType, Stats, StatsState } from "../../types";
 
 afterEach(cleanup);
 

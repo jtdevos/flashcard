@@ -4,13 +4,11 @@ import React, { useState, useContext, useEffect } from "react";
 import { CardContext } from "../../services/CardContext";
 //The types of action that CardContext can handle
 import { CardActionTypes } from "../../types";
-
 import Buttons from "./components/Buttons";
-
 //import all the components from Semantic UI React
 import { Button, Container, Form, Header, TextArea } from "semantic-ui-react";
-
 import Answer from "./components/Answer";
+import Stats from "./components/Stats";
 
 const Answering = () => {
   //get cards and currrent index from CardContext
@@ -33,7 +31,10 @@ const Answering = () => {
       data-testid="container"
       style={{ position: "absolute", left: 200 }}
     >
-      <Header data-testid="question" content={question} />
+      <Header data-testid="question">
+        <Stats />
+        {question}
+      </Header>
       <Button onClick={() => dispatch({ type: CardActionTypes.next })}>
         Skip
       </Button>
