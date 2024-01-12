@@ -1,9 +1,10 @@
-import { CardState } from "../../types";
+import React, { useContext } from "react";
+import { CardState, StatsState } from "../../types";
 import { CardProvider, initialState } from "../../services/CardContext";
+import { StatsContext, StatsProvider } from "../../services/StatsContext";
 
 //React lets us create and display components to the user
 //We need to import it so that we can look at the components to test them
-import React from "react";
 
 //testing library gives us methods to test components
 //we use render to look at React components
@@ -269,6 +270,62 @@ it("clears the answer when card changes", () => {
 
   //textarea should be empty
   expect(textarea).toHaveTextContent("");
+});
+
+//when the user clicks the skip button, the skip is recorded in the stats
+it("clicking skip records stats", () => {
+  //create a CardState with current set to 0
+  const cardState = {
+    ...initialState,
+    current: 0,
+  };
+
+  //a blank stats object
+  const blankStats = {
+    right: 0,
+    wrong: 0,
+    skip: 0,
+  };
+
+  //get the question from cards index 0
+  const { question } = cardState.cards[0];
+
+  //create statsState with stats for the question
+  const statsState: StatsState = {
+    [question]: blankStats,
+  };
+
+  //helper component displays the value of skip for the question
+  const SkipDisplay = () => {
+    const stats = useContext(StatsContext);
+    const { skip } = stats[question];
+    return <div data-testid="skipDisplay">{skip}</div>;
+  };
+
+  //render Answering and SkipDisplay inside the providers
+  //pass the providers the cardState and StatsState values that we defined
+  const { getByTestId, getByText } = render(
+    <CardProvider testState={cardState}>
+      <StatsProvider testState={statsState}>
+        <Answering />
+        <SkipDisplay />
+      </StatsProvider>
+    </CardProvider>
+  );
+
+  //find the skip button
+  const skipButton = getByText(/skip/i);
+
+  //find the skip display
+  const skipDisplay = getByTestId("skipDisplay");
+
+  //skip display should start at 0
+  expect(skipDisplay).toHaveTextContent("0");
+
+  //click the skip button
+  fireEvent.click(skipButton);
+
+  expect(skipDisplay).toHaveTextContent("1");
 });
 
 //and the snapshot
