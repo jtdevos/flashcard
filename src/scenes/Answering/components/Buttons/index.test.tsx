@@ -192,4 +192,23 @@ describe("clicking buttons records stats", () => {
   });
 
   //clicking the wrong button updates stats
+  it("clicking the wrong button updates stats", () => {
+    //render Answering and statsDisplay inside the providers
+    //pass the providers the cardState and StatsState values that we defined
+    const { getByTestId, getByText } = renderWithDisplay();
+
+    //find the wrong button
+    const wrongButton = getByText(/wrong/i);
+
+    //find the wrong display
+    const wrongDisplay = getByTestId("wrongDisplay");
+
+    //wrong display should start at 0
+    expect(wrongDisplay).toHaveTextContent("0");
+
+    //click the wrong button
+    fireEvent.click(wrongButton);
+
+    expect(wrongDisplay).toHaveTextContent("1");
+  });
 });

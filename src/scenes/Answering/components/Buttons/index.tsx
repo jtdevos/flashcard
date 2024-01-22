@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { Button } from "semantic-ui-react";
-import { CardActionTypes } from "../../../../types";
+import { CardActionTypes, StatsActionType } from "../../../../types";
 import { CardContext } from "../../../../services/CardContext";
+import { StatsContext } from "../../../../services/StatsContext";
 
 const Buttons = ({
   answered,
@@ -10,30 +11,37 @@ const Buttons = ({
   answered: boolean;
   submit: () => void;
 }) => {
-  const { dispatch } = useContext(CardContext);
+  //get cards and current so that we can get the question
+  const { cards, current, dispatch } = useContext(CardContext);
+  //get the question so we can track stats
+  const { question } = cards[current];
 
-  if (answered) {
-    return (
-      <Button.Group>
-        <Button
-          content="Right"
-          positive
-          onClick={() => dispatch({ type: CardActionTypes.next })}
-        />
-        <Button.Or />
-        <Button
-          content="Wrong"
-          negative
-          onClick={() => dispatch({ type: CardActionTypes.next })}
-        />
-      </Button.Group>
-    );
-  } else {
-    return <Button content="Submit" onClick={() => submit()} />;
-  }
+  //to dispatch actions to the StatsContext
+  const { dispatch: statsDispatch } = useContext(StatsContext);
+
+  return answered ? (
+    <Button.Group>
+      <Button
+        content="Right"
+        positive
+        onClick={() => {
+          statsDispatch({ type: StatsActionType.right, question });
+          dispatch({ type: CardActionTypes.next });
+        }}
+      />
+      <Button.Or />
+      <Button
+        content="Wrong"
+        negative
+        onClick={() => {
+          statsDispatch({ type: StatsActionType.wrong, question });
+          dispatch({ type: CardActionTypes.next });
+        }}
+      />
+    </Button.Group>
+  ) : (
+    <Button content="Submit" onClick={() => submit()} />
+  );
 };
 
 export default Buttons;
-
-//todo: Pass Test 6: Clicking Submit shows Right and Wrong Buttons
-//https://dev.to/jacobwicks/right-and-wrong-answer-buttons-1b45#pass-test-6-clicking-raw-submit-endraw-shows-raw-right-endraw-and-raw-wrong-endraw-buttons
