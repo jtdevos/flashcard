@@ -169,4 +169,90 @@ describe("CardContext reducer", () => {
 
     expect(currentDiv).toHaveTextContent("1");
   });
+
+  //save new card
+  it("save action with new question saves new card", () => {
+    const answer = "Example Answer";
+    const question = "Example Question";
+    const subject = "Example Subject";
+
+    //declare CardAction with type of 'save'
+    const saveAction: CardAction = {
+      type: CardActionTypes.save,
+      question,
+      answer,
+      subject,
+    };
+
+    //before the action is processed initialState should not have a card with that question
+    expect(
+      initialState.cards.findIndex((card) => card.question === question)
+    ).toEqual(-1);
+
+    //pass initialState and saveAction to the reducer
+    const { cards } = reducer(initialState, saveAction);
+    //after the save action is processed, should have one card with that question
+    expect(cards.filter((card) => card.question === question).length).toEqual(
+      1
+    );
+
+    //array destructuring to get the card out of the filtered array
+    const [card] = cards.filter((card) => card.question === question);
+
+    //the saved card should have the answer from the save action
+    expect(card.answer).toEqual(answer);
+
+    //the saved card should have the subject from the save action
+    expect(card.subject).toEqual(subject);
+  });
+
+  //save changes to existing card
+  it("save action with existing question saves changes to existing card", () => {
+    const answer = "Example Answer";
+    const question = "Example Question";
+    const subject = "Example Subject";
+
+    const existingCard = {
+      answer,
+      question,
+      subject,
+    };
+
+    const existingState = {
+      ...initialState,
+      cards: [...initialState.cards, existingCard],
+    };
+
+    const newAnswer = "New Answer";
+    const newSubject = "New Subject";
+
+    //declare CardAction with type of 'save'
+    const saveAction: CardAction = {
+      type: CardActionTypes.save,
+      question,
+      answer: newAnswer,
+      subject: newSubject,
+    };
+
+    //the state should have one card with that question
+    expect(
+      existingState.cards.filter((card) => card.question === question).length
+    ).toEqual(1);
+
+    //pass initialState and saveAction to the reducer
+    const { cards } = reducer(initialState, saveAction);
+
+    //Ater processing the action, we should still only have one card with that question
+    expect(cards.filter((card) => card.question === question).length).toEqual(
+      1
+    );
+
+    //array destructuring to get the card out of the filtered array
+    const [card] = cards.filter((card) => card.question === question);
+
+    //answer should have changed
+    expect(card.answer).toEqual(newAnswer);
+    //subject should have changed
+    expect(card.subject).toEqual(newSubject);
+  });
 });

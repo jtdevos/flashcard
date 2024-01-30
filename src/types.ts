@@ -28,11 +28,20 @@ export interface CardState {
 //the types of action that the reducer in CardContext will handle
 export enum CardActionTypes {
   next = "next",
+  save = "save",
 }
 
 export type CardAction =
   //moves to the next card
-  { type: CardActionTypes.next };
+  | { type: CardActionTypes.next }
+
+  //saves a card
+  | {
+      type: CardActionTypes.save;
+      answer: string;
+      question: string;
+      subject: string;
+    };
 
 //The stats for a single question
 export interface Stats {
