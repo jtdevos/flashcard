@@ -24,7 +24,10 @@ const Writing = () => {
 
   return (
     <Container style={{ position: "absolute", left: 200 }}>
-      <Button content="New Card" />
+      <Button
+        content="New Card"
+        onClick={() => dispatch({ type: CardActionTypes.new })}
+      />
       <Form
         data-testid="form"
         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {

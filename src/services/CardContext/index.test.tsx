@@ -255,4 +255,19 @@ describe("CardContext reducer", () => {
     //subject should have changed
     expect(card.subject).toEqual(newSubject);
   });
+
+  //new action returns current === -1
+  it("new sets current to -1", () => {
+    //declare CardAction with type of 'new'
+    const newAction: CardAction = { type: CardActionTypes.new };
+
+    //create a new CardState with current === 0
+    const zeroState = {
+      ...initialState,
+      current: 0,
+    };
+
+    //pass initialState and newAction to the reducer
+    expect(reducer(zeroState, newAction).current).toEqual(-1);
+  });
 });
