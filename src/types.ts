@@ -27,11 +27,15 @@ export interface CardState {
 
 //the types of action that the reducer in CardContext will handle
 export enum CardActionTypes {
+  new = "new",
   next = "next",
   save = "save",
 }
 
 export type CardAction =
+  //clears the writing component
+  | { type: CardActionTypes.new }
+
   //moves to the next card
   | { type: CardActionTypes.next }
 

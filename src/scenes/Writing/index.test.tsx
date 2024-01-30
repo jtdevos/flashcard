@@ -95,6 +95,63 @@ it("adds a card when you save", () => {
   expect(lastCard).toHaveTextContent(newQuestion);
 });
 
+//when you load writing, it loads the current card
+it("loads the current card", () => {
+  //the question and answer may have linebreaks
+  //but the linebreaks don't render inside the components
+  //this function strips the linebreaks out of a string
+  //so we can compare the string to text content that was rendered
+  const withoutLineBreaks = (string: string) => string.replace(/\s{2,}/g, " ");
+
+  //we'll test with the first card
+  const card = initialState.cards[initialState.current];
+  const { getByTestId } = renderWriting();
+
+  //a textarea
+  const answer = getByTestId("answer");
+  expect(answer).toHaveTextContent(withoutLineBreaks(card.answer));
+
+  //a textarea
+  const question = getByTestId("question");
+  expect(question).toHaveTextContent(withoutLineBreaks(card.question));
+
+  // semantic-ui-react Input. It renders an input inside of a div
+  //so we need the first child of the div
+  //and because it's an input, we test value not textcontent
+  const subject = getByTestId("subject").children[0];
+  expect(subject).toHaveValue(card.subject);
+});
+
+describe("the new card button", () => {
+  //tehre's a button to create a new card
+  it("has a new button", () => {
+    const { getByText } = renderWriting();
+    const newButton = getByText(/new/i);
+    expect(newButton).toBeInTheDocument();
+  });
+
+  //when you click the new button the writing component clears its inputs
+  it("when you click the new card button the writing component clears its inputs", () => {
+    const { getByText, getByTestId } = renderWriting();
+
+    const answer = getByTestId("answer");
+    expect(answer.textContent).toBeTruthy();
+
+    const question = getByTestId("question");
+    expect(question.textContent).toBeTruthy();
+
+    const subject = getByTestId("subject").children[0];
+    expect(subject).toHaveValue();
+
+    const newButton = getByText(/new/i);
+    fireEvent.click(newButton);
+
+    expect(answer.textContent).toBeFalsy();
+    expect(question.textContent).toBeFalsy();
+    expect(subject).not.toHaveValue();
+  });
+});
+
 //there's a button to create a new card
 //when you click the new button the writing component clears its inputs
 //there's a button to delete the current card
