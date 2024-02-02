@@ -77,6 +77,12 @@ export const reducer = (state: CardState, action: any) => {
         cards: newCards,
       };
     }
+    case "new": {
+      return {
+        ...state,
+        current: -1,
+      };
+    }
     //default case returns the previous state without changing it
     default:
       return state;
