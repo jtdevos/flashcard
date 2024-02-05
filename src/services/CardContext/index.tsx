@@ -83,6 +83,37 @@ export const reducer = (state: CardState, action: any) => {
         current: -1,
       };
     }
+    case "delete": {
+      let { cards, current } = state;
+      //the question is the unique identifier of a card
+      const { question } = action;
+
+      ///creating a new array of cards by spreading the current array of cards
+      const newCards = [...cards];
+
+      //finds the index of the target card
+      const index = newCards.findIndex((card) => card.question === question);
+
+      //splice removes the target card from the array
+      newCards.splice(index, 1);
+
+      //current tells the components what card to display
+      //decrement current
+      current = current - 1;
+
+      //don't pass -1 as current
+      if (current < 0) current = 0;
+
+      //spread the old state
+      //add the new value of current
+      //and return the newCards array as the value of cards
+      return {
+        ...state,
+        current,
+        cards: newCards,
+      };
+    }
+
     //default case returns the previous state without changing it
     default:
       return state;

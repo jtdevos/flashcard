@@ -27,12 +27,16 @@ export interface CardState {
 
 //the types of action that the reducer in CardContext will handle
 export enum CardActionTypes {
+  delete = "delete",
   new = "new",
   next = "next",
   save = "save",
 }
 
 export type CardAction =
+  //deletes the card with matching question
+  | { type: CardActionTypes.delete; question: string }
+
   //clears the writing component
   | { type: CardActionTypes.new }
 

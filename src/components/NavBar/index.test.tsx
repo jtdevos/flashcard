@@ -2,7 +2,12 @@ import React from "react";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import NavBar from "./index";
-import { SceneTypes } from "../../types";
+import { SceneTypes, CardActionTypes } from "../../types";
+import {
+  CardContext,
+  CardProvider,
+  initialState,
+} from "../../services/CardContext";
 
 afterEach(cleanup);
 
@@ -62,4 +67,28 @@ it("clicking edit invokes setShowScene", () => {
 
   fireEvent.click(writing);
   expect(setShowScene).toHaveBeenLastCalledWith(SceneTypes.writing);
+});
+
+it("clicking answer when current index is -1 dispatches next action", () => {
+  const dispatch = jest.fn();
+
+  const negativeState = {
+    ...initialState,
+    current: -1,
+    dispatch,
+  };
+
+  const { getByText } = render(
+    <CardContext.Provider value={negativeState}>
+      <NavBar
+        showScene={SceneTypes.answering}
+        setShowScene={(scene: SceneTypes) => undefined}
+      />
+    </CardContext.Provider>
+  );
+
+  const answering = getByText(/answer/i);
+  fireEvent.click(answering);
+
+  expect(dispatch).toHaveBeenCalledWith({ type: CardActionTypes.next });
 });

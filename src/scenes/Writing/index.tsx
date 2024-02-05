@@ -47,6 +47,10 @@ const Writing = () => {
         content="New Card"
         onClick={() => dispatch({ type: CardActionTypes.new })}
       />
+      <Button
+        content="Delete this Card"
+        onClick={() => dispatch({ type: CardActionTypes.delete, question })}
+      />
       <Form
         data-testid="form"
         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
