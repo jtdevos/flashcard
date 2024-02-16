@@ -1,5 +1,6 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useEffect, useReducer } from "react";
 import { Card, CardState } from "../../types";
+import { saveCards } from "../Save";
 
 //declare a card object
 const card1: Card = {
@@ -154,6 +155,10 @@ const CardProvider = ({ children, testState }: CardProviderProps) => {
     reducer,
     testState ? testState : initialState
   );
+
+  useEffect(() => {
+    saveCards(state.cards);
+  }, [state.cards]);
 
   //value is an object created by spreading state
   //and adding the dispatch method
