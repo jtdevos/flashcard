@@ -1,14 +1,26 @@
 import React, { useContext } from "react";
-import { render, cleanup } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
 import {
+  render,
+  cleanup,
+  getByTestId,
+  fireEvent,
+} from "@testing-library/react";
+import "@testing-library/jest-dom/extend-expect";
+import { Stats, StatsActionType, StatsState } from "../../types";
+import { Button } from "semantic-ui-react";
+
+jest.mock("../Save", () => ({
+  saveStats: jest.fn(),
+  loadStats: () => ({}),
+}));
+
+const {
   blankStats,
   initialState,
   reducer,
-  StatsProvider,
   StatsContext,
-} from "./index";
-import { StatsActionType, Stats, StatsState } from "../../types";
+  StatsProvider,
+} = require("./index");
 
 afterEach(cleanup);
 
@@ -27,6 +39,7 @@ describe("StatsContext reducer", () => {
       stats
         ? { ...stats, [type]: stats[type] + 1 }
         : { ...blankStats, [type]: 1 };
+
     const exampleQuestion = "Is this an example question?";
 
     //function that takes a StatsActionType and returns an action
@@ -65,6 +78,7 @@ describe("StatsContext reducer", () => {
     });
 
     describe("Reducer returns correct stats", () => {
+      //create a state with existing questions
       const existingState = {
         ...initialState,
         [exampleQuestion]: {
@@ -79,11 +93,12 @@ describe("StatsContext reducer", () => {
         },
       };
 
+      //Object.Values and array.map to turn StatsActionType into array of arrays of test arguments
       const existingTests = Object.values(StatsActionType).map((actionType) => {
         //get the action with the type and the example prompt
         const action = getAction(actionType);
 
-        //get the stats for ExamplePrompt from existingState
+        //get the stats for examplePrompt from existingState
         const stats = existingState[exampleQuestion];
 
         //getStats gives us our expected result
@@ -113,14 +128,15 @@ describe("StatsProvider", () => {
   it("renders without crashing", () => {
     render(<StatsProvider children={[<div key="child" />]} />);
   });
-  //A helper component to get Stats out of the StatsContext
-  //and display then so we can test
+
+  //A helper component to get Stats out of StatsContext
+  //and display them so we can test
   const StatsConsumer = () => {
-    const stats = useContext(StatsContext);
+    const stats: StatsState = useContext(StatsContext);
 
     //stats is the whole StatsState
     //one of its keys is the dispatch key,
-    //so if there's only 1 key there's  no stats
+    //so if there's only 1 key there's no stats
     if (Object.keys(stats).length < 2) return <div>No Stats</div>;
 
     //use the filter method to grab the first question
@@ -137,6 +153,7 @@ describe("StatsProvider", () => {
       </div>
     );
   };
+
   const exampleQuestion = "Is this an example question?";
 
   //create a state with existing questions
@@ -154,6 +171,7 @@ describe("StatsProvider", () => {
     },
   };
 
+  //StatsContext returns a stats object
   describe("StatsContext provides stats object", () => {
     const renderConsumer = () =>
       render(
@@ -161,36 +179,6 @@ describe("StatsProvider", () => {
           <StatsConsumer />
         </StatsProvider>
       );
-
-    it("StatsConsumer sees correct question", () => {
-      const { getByTestId } = renderConsumer();
-      const question = getByTestId("question");
-      expect(question).toHaveTextContent(exampleQuestion);
-    });
-
-    it("StatsConsumer sees correct value of right", () => {
-      const { getByTestId } = renderConsumer();
-      const right = getByTestId("right");
-      expect(right).toHaveTextContent(
-        testState[exampleQuestion].right.toString()
-      );
-    });
-
-    it("StatsConsumer sees correct value of skip", () => {
-      const { getByTestId } = renderConsumer();
-      const skip = getByTestId("skip");
-      expect(skip).toHaveTextContent(
-        testState[exampleQuestion].skip.toString()
-      );
-    });
-
-    it("StatsConsumer sees correct value of wrong", () => {
-      const { getByTestId } = renderConsumer();
-      const wrong = getByTestId("wrong");
-      expect(wrong).toHaveTextContent(
-        testState[exampleQuestion].wrong.toString()
-      );
-    });
 
     it("StatsConsumer sees correct question", () => {
       const { getByTestId } = renderConsumer();
@@ -211,5 +199,105 @@ describe("StatsProvider", () => {
         expect(result).toHaveTextContent(expected);
       }
     );
+  });
+});
+
+describe("saving to localStorage and loading from localStorage ", () => {
+  describe("save", () => {
+    const question = "Is this an example question?";
+
+    const UpdateButtons = () => {
+      const { dispatch } = useContext(StatsContext);
+      const dispatchStat = (type: StatsActionType) =>
+        dispatch({ type, question });
+
+      return (
+        <div>
+          <Button
+            content="right"
+            onClick={() => dispatchStat(StatsActionType.right)}
+          />
+          <Button
+            content="wrong"
+            onClick={() => dispatchStat(StatsActionType.wrong)}
+          />
+          <Button
+            content="skip"
+            onClick={() => dispatchStat(StatsActionType.skip)}
+          />
+        </div>
+      );
+    };
+
+    const eachTest = Object.values(StatsActionType).map((actionType) => {
+      //an object of type StatsState
+      const result = {
+        [question]: {
+          ...blankStats,
+          [actionType]: 1,
+        },
+      };
+
+      //return an array of arguments that it.each will turn into a test
+      return [actionType, result];
+    });
+
+    //pass the array eachTest to it.each to run tests using arguments
+    test.each(eachTest)(
+      //printing the title from it.each uses 'printf syntax'
+      "%#: %s saves new stats",
+      //name the arguments, same order as in the array we generated
+      (actionType, result) => {
+        //test starts here
+        const localStorage = require("../Save");
+        const saveStats = jest.spyOn(localStorage, "saveStats");
+        saveStats.mockClear();
+
+        const { getByText } = render(
+          <StatsProvider testState={{} as StatsState}>
+            <UpdateButtons />
+          </StatsProvider>
+        );
+
+        expect(saveStats).toHaveBeenCalledTimes(1);
+        expect(saveStats).toHaveBeenCalledWith({});
+
+        const regex = new RegExp(actionType as StatsActionType);
+        const button = getByText(regex);
+        fireEvent.click(button);
+
+        expect(saveStats).toHaveBeenCalledTimes(2);
+        expect(saveStats).toHaveBeenLastCalledWith(result);
+      }
+    );
+  });
+
+  describe("load", () => {
+    //stats is empty object when it does not get stats from localstorage
+    it("gets default initialState when no stats in localstorage", () => {
+      expect(initialState).toHaveProperty("dispatch");
+      expect(Object.keys(initialState).length).toEqual(1);
+    });
+
+    //loading stats retrieves saved stats
+    it("loads stats from localStorage when there are stats in localStorage", () => {
+      const localStorage = require("../Save");
+      const loadStats = jest.spyOn(localStorage, "loadStats");
+
+      loadStats.mockImplementation(() => ({
+        "Example Question": {
+          right: 1,
+          wrong: 2,
+          skip: 3,
+        },
+      }));
+
+      const { getInitialState } = require("./index");
+      const initialState = getInitialState();
+
+      expect(initialState).toHaveProperty("dispatch");
+      expect(initialState).toHaveProperty("Example Question");
+      expect(Object.keys(initialState).length).toEqual(2);
+    });
   });
 });

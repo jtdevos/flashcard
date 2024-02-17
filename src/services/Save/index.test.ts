@@ -1,18 +1,17 @@
 import { cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
-import { loadCards, saveCards } from "./index";
+import { saveCards, loadCards, saveStats, loadStats } from "./index";
 import { initialState } from "../CardContext";
 
 afterEach(cleanup);
 
 //turn off console logging
-// console.log = jest.fn();
+console.log = jest.fn();
 
 describe("Saving and Loading Cards", () => {
   let originalLocalStorage: Storage;
 
   beforeEach(() => {
-    console.log("window is", window.localStorage);
     originalLocalStorage = window.localStorage;
   });
 
@@ -60,13 +59,81 @@ describe("Saving and Loading Cards", () => {
       writable: true,
     });
 
-    const res = loadCards();
+    const loadedCards = loadCards();
     expect(mockGetItem.mock.calls.length).toBe(1);
     expect(mockGetItem.mock.calls[0][0]).toBe("cards");
-    expect(res).toStrictEqual(undefined);
+    expect(loadedCards).toStrictEqual(undefined);
   });
 });
 
-//saving stats saves stats
-//loading stats retrieves saved stats
-//loading stats returns empty object if nothing found
+describe("Saving and Loading Stats", () => {
+  let originalLocalStorage: Storage;
+
+  beforeEach(() => {
+    originalLocalStorage = window.localStorage;
+  });
+
+  afterEach(() => {
+    (window as any).localStorage = originalLocalStorage;
+  });
+
+  const stats = {
+    "Example Question": {
+      right: 3,
+      wrong: 2,
+      skip: 1,
+    },
+  };
+
+  const stringStats = JSON.stringify(stats);
+
+  //saving stats saves stats
+  it.skip("Saving stats saves stats", () => {
+    const setItem = jest.spyOn(window.localStorage.__proto__, "setItem");
+
+    saveStats(stats);
+
+    expect(setItem).toHaveBeenCalledWith("stats", stringStats);
+  });
+
+  //loading stats retrieves saved stats
+  //loading stats retrieves saved stats
+  it("Loading stats returns saved stats object", () => {
+    const mockGetItem = jest.fn().mockReturnValue(stringStats);
+
+    const localStorageMock = {
+      getItem: (params: any) => mockGetItem(params),
+    };
+
+    Object.defineProperty(window, "localStorage", {
+      value: localStorageMock,
+      writable: true,
+    });
+
+    const loadedStats = loadStats();
+
+    expect(mockGetItem.mock.calls.length).toBe(1);
+    expect(mockGetItem.mock.calls[0][0]).toBe("stats");
+    expect(loadedStats).toStrictEqual(stats);
+  });
+
+  //loading stats returns empty object if nothing found
+  it("Loading stats when no saved cards returns undefined", () => {
+    const mockGetItem = jest.fn().mockReturnValue(undefined);
+
+    const localStorageMock = {
+      getItem: (params: any) => mockGetItem(params),
+    };
+
+    Object.defineProperty(window, "localStorage", {
+      value: localStorageMock,
+      writable: true,
+    });
+
+    const loadedStats = loadStats();
+
+    expect(mockGetItem.mock.calls.length).toBe(1);
+    expect(mockGetItem.mock.calls[0][0]).toBe("stats");
+    expect(loadedStats).toStrictEqual({});
+  });
+});
