@@ -23,6 +23,9 @@ export interface CardState {
   //the dispatch function that accepts actions
   //actions are handled by the reducer in CardContext
   dispatch: (action: any) => void;
+
+  //the array of subjects currently displayed
+  show: string[];
 }
 
 //the types of action that the reducer in CardContext will handle
@@ -31,6 +34,10 @@ export enum CardActionTypes {
   new = "new",
   next = "next",
   save = "save",
+  select = "select",
+  showAdd = "showAdd",
+  showAll = "showAll",
+  showRemove = "showRemove",
 }
 
 export type CardAction =
@@ -49,7 +56,19 @@ export type CardAction =
       answer: string;
       question: string;
       subject: string;
-    };
+    }
+
+  //selects a card
+  | { type: CardActionTypes.select; question: string }
+
+  //adds a subject to the array of subjects to show
+  | { type: CardActionTypes.showAdd; subject: string }
+
+  //shows all subjects
+  | { type: CardActionTypes.showAll }
+
+  //removes a subject from the array of subjects to show
+  | { type: CardActionTypes.showRemove; subject: string };
 
 //The stats for a single question
 export interface Stats {
