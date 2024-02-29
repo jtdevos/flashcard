@@ -104,6 +104,33 @@ export const reducer = (state: CardState, action: any) => {
       };
     }
 
+    case "showAdd": {
+      const { subject } = action;
+      const show = [...state.show];
+      !show.includes(subject) && show.push(subject);
+      return {
+        ...state,
+        show,
+      };
+    }
+
+    case "showAll": {
+      return {
+        ...state,
+        show: [],
+      };
+    }
+
+    case "showRemove": {
+      const { subject } = action;
+      const show = state.show.filter((subj) => subj !== subject);
+
+      return {
+        ...state,
+        show,
+      };
+    }
+
     //default case returns the previous state without changing it
     default:
       return state;

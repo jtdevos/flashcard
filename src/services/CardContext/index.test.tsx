@@ -191,7 +191,7 @@ describe("CardContext reducer", () => {
 
       const { current } = reducer(threeCardState, selectAction);
 
-      expect(current).toEqual(2);
+      expect(current).toBe(2);
     });
 
     //if the question is not found, returns state
@@ -215,7 +215,7 @@ describe("CardContext reducer", () => {
 
   //actions that affect the show array
   describe("Actions for showing subjects", () => {
-    //show add adds subjects to the arrray
+    //show add adds subjects to the array
     describe("showAdd", () => {
       //showAdd should add a single subject to the show array
       it("adds the selected subject to the show array", () => {
@@ -255,8 +255,45 @@ describe("CardContext reducer", () => {
         expect(show).toHaveLength(2);
         expect(show).toContain(subject);
       });
-    }); //showAll should clear the show array
+    });
+
+    //showAll should clear the show array
+    it("showAll returns empty show array", () => {
+      const showWithSubjects = ["Example Subject", "Another Subject"];
+
+      const showState = {
+        ...initialState,
+        show: showWithSubjects,
+      };
+
+      const showAllAction = { type: CardActionTypes.showAll };
+
+      const { show } = reducer(showState, showAllAction);
+
+      expect(show).toHaveLength(0);
+    });
+
     //showRemove should remove a single subject from the show array
+    it("showRemove removes the subject from show", () => {
+      const subject = "Example Subject";
+
+      const showWithSubjects = [subject, "Another Subject"];
+
+      const showState = {
+        ...initialState,
+        show: showWithSubjects,
+      };
+
+      const showRemoveAction = {
+        type: CardActionTypes.showRemove,
+        subject,
+      };
+
+      const { show } = reducer(showState, showRemoveAction);
+
+      expect(show).toHaveLength(1);
+      expect(show).not.toContain(subject);
+    });
   });
 });
 
