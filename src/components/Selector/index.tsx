@@ -4,6 +4,15 @@ import { CardContext } from "../../services/CardContext";
 import { CardActionTypes } from "../../types";
 
 const Selector = () => {
+  const { cards, dispatch, show } = useContext(CardContext);
+
+  const subjectArray = cards.map((card) => card.subject);
+
+  const subjectSet = new Set(subjectArray);
+
+  const subjects = Array.from(subjectSet).sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
   return (
     <Sidebar
       as={Menu}
@@ -13,9 +22,20 @@ const Selector = () => {
       visible
       width="thin"
     >
-      <Menu.Item as="a">Subjects</Menu.Item>
+      <Menu.Item
+        as="a"
+        onClick={() => dispatch({ type: CardActionTypes.showAll })}
+      >
+        Subjects{!!show.length && `: ${show.length}`}
+      </Menu.Item>
+      {subjects.map((subject) => (
+        <Menu.Item
+          content={subject}
+          key={subject}
+          onClick={() => dispatch({ type: CardActionTypes.showAdd, subject })}
+        />
+      ))}
     </Sidebar>
   );
 };
-
 export default Selector;
