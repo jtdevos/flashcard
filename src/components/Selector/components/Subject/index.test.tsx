@@ -112,4 +112,26 @@ describe("Expanded", () => {
   });
 
   //if the subject is already expanded when it is clicked then it should collapse
+  it("if already expanded, it collapses when clicked ", () => {
+    const { subject, question } = initialState.cards[0];
+    expect(subject).toBeTruthy();
+
+    const showState = {
+      ...initialState,
+      //subject is in the show array
+      show: [subject],
+    };
+
+    const { getByText } = renderSubject(subject, showState);
+
+    //because subject is in the show array, <Subject> should be expanded
+    //meaning, it should show a menu item for each card in the subject
+    const questionItem = getByText(question);
+    expect(questionItem).toBeInTheDocument();
+
+    const subjectItem = getByText(subject);
+    fireEvent.click(subjectItem);
+
+    expect(questionItem).not.toBeInTheDocument();
+  });
 });
