@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Menu, Sidebar } from "semantic-ui-react";
 import { CardContext } from "../../services/CardContext";
 import { CardActionTypes } from "../../types";
+import Subject from "./components/Subject";
 
 const Selector = () => {
   const { cards, dispatch, show } = useContext(CardContext);
@@ -29,11 +30,7 @@ const Selector = () => {
         Subjects{!!show.length && `: ${show.length}`}
       </Menu.Item>
       {subjects.map((subject) => (
-        <Menu.Item
-          content={subject}
-          key={subject}
-          onClick={() => dispatch({ type: CardActionTypes.showAdd, subject })}
-        />
+        <Subject key={subject} subject={subject} />
       ))}
     </Sidebar>
   );

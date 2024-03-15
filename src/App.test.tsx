@@ -32,3 +32,10 @@ it("Matches Snapshot", () => {
   const { asFragment } = render(<App />);
   expect(asFragment()).toMatchSnapshot();
 });
+
+//shows the Selector
+it("shows the Selector", () => {
+  const { getByTestId } = render(<App />);
+  const selector = getByTestId("sidebar");
+  expect(selector).toBeInTheDocument();
+});
